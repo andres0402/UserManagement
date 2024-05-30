@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableHead, Box, TableRow, Paper, Switch, IconButton, Button, Avatar } from '@mui/material';
 import { Edit, Delete, Add } from '@mui/icons-material';
 import CircleIcon from '@mui/icons-material/Circle';
+import AddUser from './AddUser';
 
 const initialUsers = [
   { id: 1, name: 'Jese Leos', role: 'Administrator', status: 'Active', social: ['https://github.com', 'https://twitter.com', 'https://linkedin.com', 'g'], promote: true, rating: 4.7, lastLogin: '20 Nov 2022' },
@@ -10,7 +11,8 @@ const initialUsers = [
 ];
 
 function UserTable() {
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState(initialUsers || []);
+  const [open, setOpen] = useState(false);
 
   const handleTogglePromote = (id) => {
     setUsers(users.map(user => 
@@ -29,17 +31,48 @@ function UserTable() {
     else{
       return "grey";
     }
+
+
   }
+
+  const findMax = (arr) => {
+    let max = 0;
+    for (let i = 0; i < arr.length; i++){
+      if (arr[i] > max){
+        max = arr[i];
+      }
+    }
+    return max;
+  }
+
+  const handleAddUser = (newUser) => {
+    const ids = users.map((user) => user.id);
+    console.log(ids)
+    newUser.id = findMax(ids) + 1; // Genera un nuevo ID para el usuario
+    
+    setUsers([...users, newUser]);
+  };
 
   const handleDelete = (id) => {
     setUsers(users.filter(user => user.id !== id));
+    
+  };
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
   };
 
   return (
     <>
-      <Button variant="contained" color="primary" startIcon={<Add />}>
+      <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleClickOpen}>
         Add new user
       </Button>
+
+      <AddUser open={open} handleClose={handleClose} handleAddUser={handleAddUser} users = {users}/>
       
       <TableContainer component={Paper}>
         <Table>
@@ -56,7 +89,8 @@ function UserTable() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {users.map((user) => (
+          {Array.isArray(users) && users.length > 0 ? (
+            users.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>
                   <Box display={"flex"} alignItems="center">
@@ -76,21 +110,25 @@ function UserTable() {
 
                   </TableCell>
                 <TableCell>
-                  <IconButton color="primary">
-                    <a href={user.social[0]} target="_blank" rel="noreferrer"> 
-                    <img src="/gitHub.png" height={"35px"} alt="GitHub"></img>
-                    </a>
-                  </IconButton>
-                  <IconButton color="primary">
-                    <a href={user.social[1]} target="_blank" rel="noreferrer"> 
-                    <img src="/x.png" height={"30px"} alt="X"></img>
-                    </a>
-                  </IconButton>
-                  <IconButton color="primary">
-                    <a href={user.social[2]} target="_blank" rel="noreferrer"> 
-                    <img src="/linkedin.png" height={"35px"} alt="Instagram"></img>
-                    </a>
-                  </IconButton>
+                  {user.social[0] !== "" > 0 ? (
+                    <><IconButton color="primary">
+                      <a href={user.social[0]} target="_blank" rel="noreferrer">
+                        <img src="/gitHub.png" height={"35px"} alt="GitHub"></img>
+                      </a>
+                    </IconButton><IconButton color="primary">
+                        <a href={user.social[1]} target="_blank" rel="noreferrer">
+                          <img src="/x.png" height={"30px"} alt="X"></img>
+                        </a>
+                      </IconButton><IconButton color="primary">
+                        <a href={user.social[2]} target="_blank" rel="noreferrer">
+                          <img src="/linkedin.png" height={"35px"} alt="Instagram"></img>
+                        </a>
+                      </IconButton></>
+                  ):
+                  (
+                    <p></p>
+                  )}
+                  
                 </TableCell>
                 <TableCell>
                   <Switch checked={user.promote} onChange={() => handleTogglePromote(user.id)} />
@@ -106,7 +144,15 @@ function UserTable() {
                   </IconButton>
                 </TableCell>
               </TableRow>
-            ))}
+            ))
+            ):
+            (
+              <TableRow>
+                <TableCell colSpan={8} align="center">
+                  No users available
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>
