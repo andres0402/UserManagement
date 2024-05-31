@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { TextField, Button, Dialog, DialogActions, DialogContent, DialogTitle, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 
 function AddUser({ open, handleClose, handleAddUser }){
     const { control, handleSubmit, reset } = useForm();
 
     const onSubmit = (data) => {
-    data.social = data.social.split(',').map(url => url.trim());
-    for (let i = 0; i < data.social.length; i++){
-      if (!data.social[i].includes("https://"))
-      data.social[i] = "https://" + data.social[i];
+    if (!data.gitHub.includes("https://")){
+      data.gitHub = "https://" + data.gitHub;
+    }
+
+    if (!data.x.includes("https://")){
+      data.x = "https://" + data.x;
+    }
+
+    if (!data.linkedIn.includes("https://")){
+      data.linkedIn = "https://" + data.linkedIn;
     }
     // Convertir promote a boolean
     data.promote = data.promote === "true"; 
@@ -41,19 +47,50 @@ function AddUser({ open, handleClose, handleAddUser }){
               name="status"
               control={control}
               defaultValue="Active"
-              render={({ field }) => <TextField {...field} label="Status" fullWidth margin="normal" required />}
+              render={({ field }) => (
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>Status</InputLabel>
+                  <Select {...field} label="Status">
+                    <MenuItem value="Active">Active</MenuItem>
+                    <MenuItem value="Inactive">Inactive</MenuItem>
+                    <MenuItem value="Pending">Pending</MenuItem>
+                  </Select>
+                </FormControl>
+              )}
             />
             <Controller
-              name="social"
+              name="gitHub"
               control={control}
               defaultValue=""
-              render={({ field }) => <TextField {...field} label="Social Profiles (comma separated)" fullWidth margin="normal" />}
+              render={({ field }) => <TextField {...field} label="GitHub" fullWidth margin="normal" />}
+            />
+
+            <Controller
+              name="x"
+              control={control}
+              defaultValue=""
+              render={({ field }) => <TextField {...field} label="X (Twitter)" fullWidth margin="normal" />}
+            />
+
+            <Controller
+              name="linkedIn"
+              control={control}
+              defaultValue=""
+              render={({ field }) => <TextField {...field} label="LinkedIn" fullWidth margin="normal" />}
             />
             <Controller
               name="promote"
               control={control}
               defaultValue="false"
-              render={({ field }) => <TextField {...field} label="Promote (true/false)" fullWidth margin="normal" />}
+              render={({ field }) => (
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>Promote</InputLabel>
+                  <Select {...field} label="Status">
+                    <MenuItem value="true">Yes</MenuItem>
+                    <MenuItem value="false">No</MenuItem>
+                  </Select>
+                </FormControl>
+              )}
             />
             <Controller
               name="rating"
@@ -61,12 +98,20 @@ function AddUser({ open, handleClose, handleAddUser }){
               defaultValue=""
               render={({ field }) => <TextField {...field} label="Rating" type="number" step="0.1" fullWidth margin="normal" required />}
             />
+
+            <Controller
+              name="avatar"
+              control={control}
+              defaultValue=""
+              render={({ field }) => <TextField {...field} label="Avatar URL" step="0.1" fullWidth margin="normal" required />}
+            />
+            <label><b>Last login</b></label>
             <Controller
               name="lastLogin"
               control={control}
               defaultValue=""
               render={({ field }) => <TextField {...field}  type='date' fullWidth margin="normal" required />}
-            />
+            /> 
           </form>
         </DialogContent>
         <DialogActions>
